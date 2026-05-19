@@ -1,0 +1,61 @@
+name: Run Tests & Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: jobhunter_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-run-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install httpx pytest pytest-asyncio
+
+      - name: Run Backend Integration tests
+        env:
+          DATABASE_URI: postgresql+asyncpg://postgres:postgres@localhost:5432/jobhunter_test
+          SECRET_KEY: test_secret_key_validation
+          OPENAI_API_KEY: your_openai_api_key
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          cd backend
+          # Run database migrations/seeding locally
+          python -m app.seed
+          # Run integration tests
+          python -m test_api
+          python -m test_playwright
