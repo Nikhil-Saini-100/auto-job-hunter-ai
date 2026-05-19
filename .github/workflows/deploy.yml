@@ -1,0 +1,50 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Auto Job Hunter AI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # Navigate to the application directory (create it if it doesn't exist)
+            mkdir -p /opt/auto-job-hunter-ai
+            cd /opt/auto-job-hunter-ai
+            
+            # Pull the latest code from the repository
+            # (Note: Ensure the server has a deploy key configured for private repos)
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/${{ github.repository }} .
+            fi
+            
+            # Create a .env file from secrets if it doesn't exist
+            if [ ! -f ".env" ]; then
+              echo "POSTGRES_USER=${{ secrets.DB_USER }}" > .env
+              echo "POSTGRES_PASSWORD=${{ secrets.DB_PASS }}" >> .env
+              echo "SECRET_KEY=${{ secrets.JWT_SECRET }}" >> .env
+              echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+            fi
+            
+            # Build and restart the Docker containers
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml build
+            docker-compose -f docker-compose.yml up -d
+            
+            # Clean up dangling images to save space
+            docker image prune -f
