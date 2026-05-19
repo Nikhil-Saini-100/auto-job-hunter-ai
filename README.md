@@ -27,3 +27,9 @@ docker-compose up --build
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000
 - API Docs: http://localhost:8000/docs
+
+## Production Deployments
+
+- **Frontend**: Deploying to [Vercel](https://vercel.com)
+- **Backend API & Scraper**: [Hugging Face Spaces](https://huggingface.co/spaces/ns70080/auto-job-hunter-ai)
+
