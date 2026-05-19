@@ -1,0 +1,32 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Next.js
+.next/
+node_modules/
+out/
+build/
+
+# Database
+*.db
+*.sqlite3
+
+# Playwright
+browser_data/
+/ms-playwright
+
+# Mac/Windows
+.DS_Store
+Thumbs.db
