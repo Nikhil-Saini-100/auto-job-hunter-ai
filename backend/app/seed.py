@@ -14,7 +14,13 @@ from app.security.security import get_password_hash
 
 async def seed_database():
     print("Connecting to database...")
-    engine = create_async_engine(settings.DATABASE_URI, echo=False)
+    db_uri = settings.DATABASE_URI
+    if db_uri.startswith("postgresql://"):
+        db_uri = db_uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif db_uri.startswith("postgres://"):
+        db_uri = db_uri.replace("postgres://", "postgresql+asyncpg://", 1)
+
+    engine = create_async_engine(db_uri, echo=False)
     
     # Create all tables (in a real app, use Alembic migrations)
     async with engine.begin() as conn:

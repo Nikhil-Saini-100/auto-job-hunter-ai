@@ -1,0 +1,39 @@
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=7860
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV HOME=/home/user
+
+# Install redis-server
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    redis-server \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up user with UID 1000 (required by Hugging Face Spaces)
+RUN useradd -m -u 1000 user || true
+
+WORKDIR /code
+
+# Copy and install dependencies
+COPY requirements.txt /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+# Copy application files
+COPY --chown=user:user . /code
+
+# Give execution rights to the startup script
+RUN chmod +x /code/start.sh
+
+# Change ownership of working directories for Redis and system directories
+RUN mkdir -p /var/run/redis /var/log/redis /var/lib/redis /home/user && \
+    chown -R user:user /var/run/redis /var/log/redis /var/lib/redis /home/user /code
+
+USER user
+
+EXPOSE 7860
+
+CMD ["/code/start.sh"]
