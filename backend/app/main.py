@@ -27,4 +27,17 @@ def read_root():
 def health_check():
     return {"status": "ok"}
 
+@app.get("/debug-env")
+def debug_env():
+    import os
+    keys = list(os.environ.keys())
+    masked_env = {}
+    for k in keys:
+        val = os.environ.get(k, "")
+        if any(sec in k.upper() for sec in ["KEY", "PASS", "SECRET", "TOKEN", "URI", "URL"]):
+            masked_env[k] = f"PRESENT (length: {len(val)})" if val else "EMPTY"
+        else:
+            masked_env[k] = val
+    return masked_env
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
