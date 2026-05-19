@@ -14,7 +14,8 @@ from app.security.security import get_password_hash
 
 async def seed_database():
     print("Connecting to database...")
-    db_uri = settings.DATABASE_URI
+    import os
+    db_uri = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI") or settings.DATABASE_URI
     if db_uri.startswith("postgresql://"):
         db_uri = db_uri.replace("postgresql://", "postgresql+asyncpg://", 1)
     elif db_uri.startswith("postgres://"):

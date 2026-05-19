@@ -2,7 +2,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-db_uri = settings.DATABASE_URI
+import os
+
+db_uri = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI") or settings.DATABASE_URI
 if db_uri.startswith("postgresql://"):
     db_uri = db_uri.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif db_uri.startswith("postgres://"):
