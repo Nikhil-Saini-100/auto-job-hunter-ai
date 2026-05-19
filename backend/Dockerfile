@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -19,8 +19,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Install Playwright browsers
-RUN playwright install --with-deps chromium
+# Playwright browsers are already installed in this base image
 
 # Copy project
 COPY . .

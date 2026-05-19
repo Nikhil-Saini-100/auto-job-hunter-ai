@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.database import Base
@@ -20,7 +20,7 @@ class UserProfile(Base):
     __tablename__ = "user_profiles"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, sqlalchemy.ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     master_resume_path = Column(String, nullable=True)
     parsed_resume_json = Column(JSON, nullable=True)
     preferences_json = Column(JSON, nullable=True)

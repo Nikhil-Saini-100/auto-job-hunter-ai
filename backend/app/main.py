@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.api import api_router
+from app.core.config import settings
+import app.models # Register all models
 
 app = FastAPI(
     title="Auto Job Hunter AI",
@@ -28,3 +31,5 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+app.include_router(api_router, prefix=settings.API_V1_STR)
